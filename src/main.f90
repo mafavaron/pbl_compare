@@ -16,7 +16,7 @@ program GenerateIndicators
     real                    :: rValue
     real, dimension(16384)  :: rvPrimarySet
     real, dimension(16384)  :: rvSecondarySet
-    type(ComparisonType)    :: tCmp
+    type(CompareType)       :: tCmp
     
     ! First case: Single peak of growing size
     rvPrimarySet   = 1.
