@@ -86,13 +86,13 @@ contains
         
         ! Check execution may start
         if(.not.this % lGo) then
-            rFb = -9999.9
+            rFB = -9999.9d0
             return
         end if
         
         ! Compute the information desired
         rNumerator   = 2. * sum(this % rvPrimary - this % rvSecondary)
-        rDenominator = (sum(this % rvPrimary + this % rvSecondary))
+        rDenominator = sum(this % rvPrimary) + sum(this % rvSecondary)
         rFB          = rNumerator / rDenominator
         
     end function FB
