@@ -16,10 +16,10 @@ module pbl_compare
     
     ! Main data type
     type CompareType
-        logical                         :: lGo = .false.
-        integer                         :: iNumData
-        real, dimension(:), allocatable :: rvPrimary
-        real, dimension(:), allocatable :: rvSecondary
+        logical                             :: lGo = .false.
+        integer                             :: iNumData
+        real(8), dimension(:), allocatable  :: rvPrimary
+        real(8), dimension(:), allocatable  :: rvSecondary
     contains
         procedure   :: Set
         procedure   :: FB       ! Fractional bias
@@ -64,6 +64,9 @@ contains
         this % rvPrimary   = rvP
         this % rvSecondary = rvS
         
+        ! Set data set size
+        this % iNumData = iSize
+                
         ! Indicate function computing may really start
         this % lGo = .true.
         
@@ -75,11 +78,11 @@ contains
     
         ! Routine arguments
         class(CompareType), intent(inout)   :: this
-        real                                :: rFB
+        real(8)                             :: rFB
         
         ! Locals
-        real    :: rNumerator
-        real    :: rDenominator
+        real(8) :: rNumerator
+        real(8) :: rDenominator
         
         ! Check execution may start
         if(.not.this % lGo) then
