@@ -6,6 +6,8 @@
 
 program GenerateIndicators
 
+    use pbl_compare
+
     implicit none
 
     ! Locals
