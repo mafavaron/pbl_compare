@@ -6,8 +6,40 @@
 
 program GenerateIndicators
 
-    ! Loacls
+    use pbl_compare
+
+    implicit none
+
+    ! Locals
+    integer                 :: iRetCode
+    integer                 :: iVariant
+    real                    :: rValue
+    real, dimension(16384)  :: rvPrimarySet
+    real, dimension(16384)  :: rvSecondarySet
+    type(CompareType)       :: tCmp
+    real(8)                 :: rFB
     
+    ! First case: Single peak of growing size
+    rvPrimarySet   = 1.
+    rvSecondarySet = rvPrimarySet
+    
+    do iVariant = 0, 6
+    
+        print *, "Action: 'Peaks'; Variant = ", iVariant
+    
+        rValue = iVariant * 100.
+        rvSecondarySet(8192) = rValue
+        
+        iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
+        if(iRetCode /= 0) then
+            print *, "error: Comparison data sets initialization failure - Ret code = ", iRetCode
+            stop
+        end if
+        
+        rFB = tCmp % FB()
+        print *, "    Fractional Bias (FB) = ", rFB
+        
+    end do
 
 end program GenerateIndicators
 
