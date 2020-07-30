@@ -20,8 +20,12 @@ program GenerateIndicators
     real(8)                 :: rFB
     
     ! First case: Single peak of growing size
-    rvPrimarySet   = 1.
+    rvPrimarySet   = 0.
     rvSecondarySet = rvPrimarySet
+    
+    print *, "   "
+    print *, "---   ---   ---"
+    print *, "   "
     
     do iVariant = 0, 6
     
