@@ -17,6 +17,7 @@ program GenerateIndicators
     real, dimension(16384)  :: rvPrimarySet
     real, dimension(16384)  :: rvSecondarySet
     type(CompareType)       :: tCmp
+    real                    :: rFB
     
     ! First case: Single peak of growing size
     rvPrimarySet   = 1.
@@ -34,6 +35,9 @@ program GenerateIndicators
             print *, "error: Comparison data sets initialization failure - Ret code = ", iRetCode
             stop
         end if
+        
+        rFB = tCmp % FB()
+        print *, "    Fractional Bias (FB) = ", rFB
         
     end do
 
