@@ -16,10 +16,13 @@ module pbl_compare
     
     ! Main data type
     type CompareType
+        logical                         :: lGo = .false.
+        integer                         :: iNumData
         real, dimension(:), allocatable :: rvPrimary
         real, dimension(:), allocatable :: rvSecondary
     contains
         procedure   :: Set
+        procedure   :: FB       ! Fractional bias
     end type CompareType
     
 contains
@@ -61,6 +64,34 @@ contains
         this % rvPrimary   = rvP
         this % rvSecondary = rvS
         
+        ! Indicate function computing may really start
+        this % lGo = .true.
+        
     end function Set
+    
+    
+    ! Fractional Bias (FB)
+    function FB(this) result(rFB)
+    
+        ! Routine arguments
+        class(CompareType), intent(inout)   :: this
+        real                                :: rFB
+        
+        ! Locals
+        real    :: rNumerator
+        real    :: rDenominator
+        
+        ! Check execution may start
+        if(.not.this % lGo) then
+            rFb = -9999.9
+            return
+        end if
+        
+        ! Compute the information desired
+        rNumerator   = 2. * sum(this % rvPrimary - this % rvSecondary)
+        rDenominator = (sum(this % rvPrimary + this % rvSecondary))
+        rFB          = rNumerator / rDenominator
+        
+    end function FB
 
 end module pbl_compare
