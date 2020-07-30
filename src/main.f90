@@ -6,8 +6,22 @@
 
 program GenerateIndicators
 
-    ! Loacls
+    implicit none
+
+    ! Locals
+    integer                 :: iVariant
+    real                    :: rValue
+    real, dimension(16384)  :: rvPrimarySet
+    real, dimension(16384)  :: rvSecondarySet
     
+    ! First case: Single peak of growing size
+    rvPrimarySet   = 1.
+    rvSecondarySet = rvPrimarySet
+    
+    do iVariant = 0, 6
+        rValue = iVariant * 100.
+        rvSecondarySet(8192) = rValue
+    end do
 
 end program GenerateIndicators
 
