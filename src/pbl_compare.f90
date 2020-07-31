@@ -64,11 +64,16 @@ contains
         this % rvPrimary   = rvP
         this % rvSecondary = rvS
         
-        ! Set data set size
-        this % iNumData = iSize
-                
-        ! Indicate function computing may really start
-        this % lGo = .true.
+        ! Check data is not identically zero
+        if(sum(rvP) > epsilon(rvP(1))*iSize .and. sum(rvS) > epsilon(rvS(1))*iSize) then
+        
+            ! Set data set size
+            this % iNumData = iSize
+                    
+            ! Indicate function computing may really start
+            this % lGo = .true.
+        
+        end if
         
     end function Set
     
