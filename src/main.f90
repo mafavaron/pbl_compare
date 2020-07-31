@@ -17,18 +17,24 @@ program GenerateIndicators
     real, dimension(16384)  :: rvPrimarySet
     real, dimension(16384)  :: rvSecondarySet
     type(CompareType)       :: tCmp
-    real(8)                 :: rFB
+    real                    :: rFB
     
     ! First case: Single peak of growing size
     rvPrimarySet   = 1.
     rvSecondarySet = rvPrimarySet
     
+    print *, "   "
+    print *, "---   ---   ---"
+    print *, "   "
+    
     do iVariant = 0, 6
     
         print *, "Action: 'Peaks'; Variant = ", iVariant
-    
-        rValue = iVariant * 100.
-        rvSecondarySet(8192) = rValue
+        
+        if(iVariant > 0) then
+            rValue = (iVariant + 1) * 100.
+            rvSecondarySet(8192) = rValue
+        end if
         
         iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
         if(iRetCode /= 0) then
