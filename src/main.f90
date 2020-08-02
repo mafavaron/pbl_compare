@@ -18,6 +18,8 @@ program GenerateIndicators
     real, dimension(16384)  :: rvSecondarySet
     type(CompareType)       :: tCmp
     real                    :: rFB
+    real                    :: rDs
+    integer                 :: n = size(rvPrimarySet)
     
     ! First case: Single peak of growing size
     rvPrimarySet   = 1.
@@ -34,6 +36,9 @@ program GenerateIndicators
         if(iVariant > 0) then
             rValue = (iVariant + 1) * 100.
             rvSecondarySet(8192) = rValue
+            rDs                  = rValue
+        else
+            rDs = 1.
         end if
         
         iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
@@ -42,8 +47,11 @@ program GenerateIndicators
             stop
         end if
         
+        ! Compute value expected analytically, for comparison
+        rValue = 2. * (1. - rDs) / (rDs + 2*n - 1.)
+        
         rFB = tCmp % FB()
-        print *, "    Fractional Bias (FB) = ", rFB
+        print *, "    Fractional Bias (FB) = ", rFB, "    Error = ", rFB - rValue
         
     end do
 
