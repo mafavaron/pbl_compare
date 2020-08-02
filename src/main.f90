@@ -31,6 +31,8 @@ program GenerateIndicators
     print *, "---   ---   ---"
     print *, "   "
     
+    print *, "Peak ---------------------------------------------------"
+        
     do iVariant = 0, 6
     
         print *, "Action: 'Peaks'; Variant = ", iVariant
@@ -57,15 +59,17 @@ program GenerateIndicators
         
     end do
     
-    print *, "---------------------------------------------------"
+    print *, "Norm ---------------------------------------------------"
         
     rvPrimarySet = [(exp(-(i-n/2)**2/2.e6),i=1,n)]
     do iShiftVal = -6000, 6000, 100
-        rvPrimarySet = [(exp(-(i-n/2+iShiftVal)**2/2.e6),i=1,n)]
+        rvSecondarySet = [(exp(-(i-n/2+iShiftVal)**2/2.e6),i=1,n)]
         iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
         rFB = tCmp % FB()
-        print *, "    Fractional Bias (FB) = ", rFB
+        print *, "    Fractional Bias (FB) = ", rFB, "  Shift = ", iShiftVal
     end do
 
+    print *, "==== ---------------------------------------------------"
+        
 end program GenerateIndicators
 
