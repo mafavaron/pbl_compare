@@ -13,6 +13,7 @@ program GenerateIndicators
     ! Locals
     integer                 :: iRetCode
     integer                 :: iVariant
+    integer                 :: iShiftVal
     real                    :: rValue
     real, dimension(16384)  :: rvPrimarySet
     real, dimension(16384)  :: rvSecondarySet
@@ -20,6 +21,7 @@ program GenerateIndicators
     real                    :: rFB
     real                    :: rDs
     integer                 :: n = size(rvPrimarySet)
+    integer                 :: i
     
     ! First case: Single peak of growing size
     rvPrimarySet   = 1.
@@ -53,6 +55,16 @@ program GenerateIndicators
         rFB = tCmp % FB()
         print *, "    Fractional Bias (FB) = ", rFB, "    Error = ", rFB - rValue
         
+    end do
+    
+    print *, "---------------------------------------------------"
+        
+    rvPrimarySet = [(exp(-(i-n/2)**2/2.e6),i=1,n)]
+    do iShiftVal = -6000, 6000, 100
+        rvPrimarySet = [(exp(-(i-n/2+iShiftVal)**2/2.e6),i=1,n)]
+        iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
+        rFB = tCmp % FB()
+        print *, "    Fractional Bias (FB) = ", rFB
     end do
 
 end program GenerateIndicators
