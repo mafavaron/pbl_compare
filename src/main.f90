@@ -21,6 +21,7 @@ program GenerateIndicators
     integer                             :: iCase
     integer                             :: iShiftVal
     real                                :: rValue
+    real, dimension(N_VARS)             :: rvVariantValue
     real, dimension(N, N_CASES)         :: rmPrimarySet
     real, dimension(N, N_CASES)         :: rmSecondarySet
     real, dimension(N_VARS, N_CASES)    :: rmFB
@@ -48,12 +49,12 @@ program GenerateIndicators
                 rmPrimarySet(:,iCase)   = 1.
                 rmSecondarySet(:,iCase) = rmPrimarySet(:,iCase)
                 if(iVariant > 0) then
-                    rValue = (iVariant + 1) * 100.
+                    rDs = (iVariant + 1) * 100.
                     rmSecondarySet(8192,iCase)  = rValue
-                    rDs                         = rValue
                 else
                     rDs = 1.
                 end if
+                rvVariantValue(iVariant+1) = rDs
                 
             case(2)
             
@@ -63,10 +64,11 @@ program GenerateIndicators
                 else
                     rH = 1.
                 end if
-                rmPrimarySet(:,iCase)   = rH * (Heaviside(N, floor(N/4) - floor(N/8) - 1) - &
-                                                Heaviside(N, floor(N/4) + floor(N/8) - 1))
-                rmSecondarySet(:,iCase) = rH * (Heaviside(N, floor(N/2) + floor(N/4) - floor(N/8) - 1) - &
-                                                Heaviside(N, floor(N/2) + floor(N/4) + floor(N/8) - 1))
+                rvVariantValue(iVariant+1) = rH
+                rmPrimarySet(:,iCase)   = rH * (Heaviside(N, N/4 - N/8 - 1) - &
+                                                Heaviside(N, N/4 + N/8 - 1))
+                rmSecondarySet(:,iCase) = rH * (Heaviside(N, N/2 + N/4 - N/8 - 1) - &
+                                                Heaviside(N, N/2 + N/4 + N/8 - 1))
                                                 
             case(3)
             
@@ -76,6 +78,9 @@ program GenerateIndicators
                 else
                     rDs = 1.
                 end if
+                rvVariantValue(iVariant+1) = rDs
+                rmPrimarySet(:,iCase)   = TinyGaussian(N)
+                rmSecondarySet(:,iCase) = rDs * rmPrimarySet(:,iCase)
                 
             case(4)
             
@@ -85,40 +90,32 @@ program GenerateIndicators
                 else
                     rDs = 0.
                 end if
+                rvVariantValue(iVariant+1) = rDs
+                rmPrimarySet(:,iCase)   = TinyGaussian(N)
+                rmSecondarySet(:,iCase) = rmPrimarySet(:,iCase) + rDs
             
             end select
-            
         
-        iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
-        if(iRetCode /= 0) then
-            print *, "error: Comparison data sets initialization failure - Ret code = ", iRetCode
-            stop
-        end if
+            ! Initialize new value, then compute indices based on it
+            iRetCode = tCmp % Set(rmPrimarySet(:,iCase), rmSecondarySet(:,iCase))
+            if(iRetCode /= 0) then
+                print *, "error: Comparison data sets initialization failure - Ret code = ", iRetCode
+                stop
+            end if
+            rmFB(iVariant+1, iCase) = tCmp % FB()
         
-        ! Compute value expected analytically, for comparison
-        rValue = 2. * (1. - rDs) / (rDs + 2*n - 1.)
-        
-        rFB = tCmp % FB()
-        print *, "    Fractional Bias (FB) = ", rFB, "    Error = ", rFB - rValue
-        
-    end do
+        end do
     
     end do
     
-    print *, "Norm ---------------------------------------------------"
-    
-    open(10, file="FB.csv", status="unknown", action="write")
-    rvPrimarySet = [(exp(-(i-n/2)**2/2.e4),i=1,n)]
-    do iShiftVal = -6000, 6000, 100
-        rvSecondarySet = [(exp(-(i-n/2+iShiftVal)**2/2.e4),i=1,n)]
-        iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
-        rFB = tCmp % FB()
-        print *, "    Fractional Bias (FB) = ", rFB, "  Shift = ", iShiftVal
+    ! Print results for tte various cases
+    open(10, file="Indices_1.csv", status="unknown", action="write")
+    write(10, "('Variant, Value, FB')")
+    do i=1,N_VARS
+        write(10, "(i1,',',f5.1,',',f8.5)") i-1, rvVariantValue(i), rmFB(i,1)
     end do
     close(10)
 
-    print *, "==== ---------------------------------------------------"
-    
     
 contains
 
