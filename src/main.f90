@@ -39,11 +39,13 @@ program GenerateIndicators
     
         do iCase = 1, N_CASES
     
-            ! First case: Single peak of growing size
-            select(iCase)
+            select case(iCase)
+            
             case(1)
+            
+                ! First case: Single peak of growing size
                 rmPrimarySet(:,iCase)   = 1.
-                rvSecondarySet(:,iCase) = rmPrimarySet(:,iCase)
+                rmSecondarySet(:,iCase) = rmPrimarySet(:,iCase)
                 if(iVariant > 0) then
                     rValue = (iVariant + 1) * 100.
                     rmSecondarySet(8192,iCase)  = rValue
@@ -51,7 +53,17 @@ program GenerateIndicators
                 else
                     rDs = 1.
                 end if
+                
+            case(2)
+            
+                ! Second case: Heaviside doublets
+                rmPrimarySet(:,iCase)   = Heaviside(N, floor(N/4) - floor(N/8) - 1) - &
+                                          Heaviside(N, floor(N/4) + floor(N/8) - 1)
+                rmSecondarySet(:,iCase) = Heaviside(N, FLOOR(N/2) + floor(N/4) - floor(N/8) - 1) - &
+                                          Heaviside(N, FLOOR(N/2) + floor(N/4) + floor(N/8) - 1)
+            
             end select
+            
         
         iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
         if(iRetCode /= 0) then
