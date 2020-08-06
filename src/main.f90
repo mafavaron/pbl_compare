@@ -18,19 +18,16 @@ program GenerateIndicators
     ! Locals
     integer                             :: iRetCode
     integer                             :: iVariant
+    integer                             :: iCase
     integer                             :: iShiftVal
     real                                :: rValue
-    real, dimension(N)                  :: rvPrimarySet
-    real, dimension(N)                  :: rvSecondarySet
+    real, dimension(N, N_CASES)         :: rmPrimarySet
+    real, dimension(N, N_CASES)         :: rmSecondarySet
     real, dimension(N_VARS, N_CASES)    :: rmFB
     type(CompareType)                   :: tCmp
     real                                :: rFB
     real                                :: rDs
     integer                             :: i
-    
-    ! First case: Single peak of growing size
-    rvPrimarySet   = 1.
-    rvSecondarySet = rvPrimarySet
     
     print *, "   "
     print *, "---   ---   ---"
@@ -38,17 +35,23 @@ program GenerateIndicators
     
     print *, "Peak ---------------------------------------------------"
         
-    do iVariant = 0, 6
+    do iVariant = 0, N_VARS - 1
     
-        print *, "Action: 'Peaks'; Variant = ", iVariant
-        
-        if(iVariant > 0) then
-            rValue = (iVariant + 1) * 100.
-            rvSecondarySet(8192) = rValue
-            rDs                  = rValue
-        else
-            rDs = 1.
-        end if
+        do iCase = 1, N_CASES
+    
+            ! First case: Single peak of growing size
+            select(iCase)
+            case(1)
+                rmPrimarySet(:,iCase)   = 1.
+                rvSecondarySet(:,iCase) = rmPrimarySet(:,iCase)
+                if(iVariant > 0) then
+                    rValue = (iVariant + 1) * 100.
+                    rmSecondarySet(8192,iCase)  = rValue
+                    rDs                         = rValue
+                else
+                    rDs = 1.
+                end if
+            end select
         
         iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
         if(iRetCode /= 0) then
