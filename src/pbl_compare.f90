@@ -18,8 +18,8 @@ module pbl_compare
     type CompareType
         logical                             :: lGo = .false.
         integer                             :: iNumData
-        real(8), dimension(:), allocatable  :: rvPrimary
-        real(8), dimension(:), allocatable  :: rvSecondary
+        real, dimension(:), allocatable     :: rvPrimary
+        real, dimension(:), allocatable     :: rvSecondary
     contains
         procedure   :: Set
         procedure   :: FB       ! Fractional bias
@@ -64,11 +64,16 @@ contains
         this % rvPrimary   = rvP
         this % rvSecondary = rvS
         
-        ! Set data set size
-        this % iNumData = iSize
-                
-        ! Indicate function computing may really start
-        this % lGo = .true.
+        ! Check data is not identically zero
+        if(sum(rvP) > epsilon(rvP(1))*iSize .and. sum(rvS) > epsilon(rvS(1))*iSize) then
+        
+            ! Set data set size
+            this % iNumData = iSize
+                    
+            ! Indicate function computing may really start
+            this % lGo = .true.
+        
+        end if
         
     end function Set
     
@@ -78,15 +83,15 @@ contains
     
         ! Routine arguments
         class(CompareType), intent(inout)   :: this
-        real(8)                             :: rFB
+        real                                :: rFB
         
         ! Locals
-        real(8) :: rNumerator
-        real(8) :: rDenominator
+        real    :: rNumerator
+        real    :: rDenominator
         
         ! Check execution may start
         if(.not.this % lGo) then
-            rFB = -9999.9d0
+            rFB = -9999.9
             return
         end if
         

@@ -9,30 +9,85 @@ program GenerateIndicators
     use pbl_compare
 
     implicit none
+    
+    ! Constants
+    integer, parameter  :: N_VARS   =     7
+    integer, parameter  :: N_CASES  =     4
+    integer, parameter  :: N        = 16384
 
     ! Locals
-    integer                 :: iRetCode
-    integer                 :: iVariant
-    real                    :: rValue
-    real, dimension(16384)  :: rvPrimarySet
-    real, dimension(16384)  :: rvSecondarySet
-    type(CompareType)       :: tCmp
-    real(8)                 :: rFB
-    
-    ! First case: Single peak of growing size
-    rvPrimarySet   = 0.
-    rvSecondarySet = rvPrimarySet
+    integer                             :: iRetCode
+    integer                             :: iVariant
+    integer                             :: iCase
+    integer                             :: iShiftVal
+    real                                :: rValue
+    real, dimension(N, N_CASES)         :: rmPrimarySet
+    real, dimension(N, N_CASES)         :: rmSecondarySet
+    real, dimension(N_VARS, N_CASES)    :: rmFB
+    type(CompareType)                   :: tCmp
+    real                                :: rFB
+    real                                :: rDs
+    real                                :: rH
+    integer                             :: i
     
     print *, "   "
     print *, "---   ---   ---"
     print *, "   "
     
-    do iVariant = 0, 6
+    print *, "Peak ---------------------------------------------------"
+        
+    do iVariant = 0, N_VARS - 1
     
-        print *, "Action: 'Peaks'; Variant = ", iVariant
+        do iCase = 1, N_CASES
     
-        rValue = iVariant * 100.
-        rvSecondarySet(8192) = rValue
+            select case(iCase)
+            
+            case(1)
+            
+                ! First case: Single peak of growing size
+                rmPrimarySet(:,iCase)   = 1.
+                rmSecondarySet(:,iCase) = rmPrimarySet(:,iCase)
+                if(iVariant > 0) then
+                    rValue = (iVariant + 1) * 100.
+                    rmSecondarySet(8192,iCase)  = rValue
+                    rDs                         = rValue
+                else
+                    rDs = 1.
+                end if
+                
+            case(2)
+            
+                ! Second case: Heaviside doublets
+                if(iVariant > 0) then
+                    rH = (iVariant + 1) * 100.
+                else
+                    rH = 1.
+                end if
+                rmPrimarySet(:,iCase)   = rH * (Heaviside(N, floor(N/4) - floor(N/8) - 1) - &
+                                                Heaviside(N, floor(N/4) + floor(N/8) - 1))
+                rmSecondarySet(:,iCase) = rH * (Heaviside(N, floor(N/2) + floor(N/4) - floor(N/8) - 1) - &
+                                                Heaviside(N, floor(N/2) + floor(N/4) + floor(N/8) - 1))
+                                                
+            case(3)
+            
+                ! Third case: dilated Gaussian
+                if(iVariant > 0) then
+                    rDs = (iVariant + 1) * 100.
+                else
+                    rDs = 1.
+                end if
+                
+            case(4)
+            
+                ! Fourth case: translated Gaussian
+                if(iVariant > 0) then
+                    rDs = (iVariant + 1) * 100.
+                else
+                    rDs = 0.
+                end if
+            
+            end select
+            
         
         iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
         if(iRetCode /= 0) then
@@ -40,10 +95,69 @@ program GenerateIndicators
             stop
         end if
         
+        ! Compute value expected analytically, for comparison
+        rValue = 2. * (1. - rDs) / (rDs + 2*n - 1.)
+        
         rFB = tCmp % FB()
-        print *, "    Fractional Bias (FB) = ", rFB
+        print *, "    Fractional Bias (FB) = ", rFB, "    Error = ", rFB - rValue
         
     end do
+    
+    end do
+    
+    print *, "Norm ---------------------------------------------------"
+    
+    open(10, file="FB.csv", status="unknown", action="write")
+    rvPrimarySet = [(exp(-(i-n/2)**2/2.e4),i=1,n)]
+    do iShiftVal = -6000, 6000, 100
+        rvSecondarySet = [(exp(-(i-n/2+iShiftVal)**2/2.e4),i=1,n)]
+        iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
+        rFB = tCmp % FB()
+        print *, "    Fractional Bias (FB) = ", rFB, "  Shift = ", iShiftVal
+    end do
+    close(10)
 
+    print *, "==== ---------------------------------------------------"
+    
+    
+contains
+
+    function Heaviside(n, n_at_change) result(rvHeaviside)
+    
+        ! Routine arguments
+        integer, intent(in)             :: n
+        integer, intent(in)             :: n_at_change
+        real, dimension(n)              :: rvHeaviside
+        
+        ! Locals
+        integer :: i
+        
+        ! Generate the information desired
+        do i = 1, n
+            if(i < n_at_change) then
+                rvHeaviside(i) = 0.
+            else
+                rvHeaviside(i) = 1.
+            end if
+        end do
+        
+    end function Heaviside
+    
+    
+    function TinyGaussian(n) result(rvGauss)
+
+    
+        ! Routine arguments
+        integer, intent(in)             :: n
+        real, dimension(n)              :: rvGauss
+        
+        ! Locals
+        integer :: i
+        
+        ! Compute the information desired
+        rvGauss = exp(-50.*[((float(i)-floor(n/s))**2,i=1,n)]/n**2)
+        
+    end function TinyGaussian
+        
 end program GenerateIndicators
 
