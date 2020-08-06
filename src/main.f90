@@ -27,6 +27,7 @@ program GenerateIndicators
     type(CompareType)                   :: tCmp
     real                                :: rFB
     real                                :: rDs
+    real                                :: rH
     integer                             :: i
     
     print *, "   "
@@ -57,10 +58,33 @@ program GenerateIndicators
             case(2)
             
                 ! Second case: Heaviside doublets
-                rmPrimarySet(:,iCase)   = Heaviside(N, floor(N/4) - floor(N/8) - 1) - &
-                                          Heaviside(N, floor(N/4) + floor(N/8) - 1)
-                rmSecondarySet(:,iCase) = Heaviside(N, floor(N/2) + floor(N/4) - floor(N/8) - 1) - &
-                                          Heaviside(N, floor(N/2) + floor(N/4) + floor(N/8) - 1)
+                if(iVariant > 0) then
+                    rH = (iVariant + 1) * 100.
+                else
+                    rH = 1.
+                end if
+                rmPrimarySet(:,iCase)   = rH * (Heaviside(N, floor(N/4) - floor(N/8) - 1) - &
+                                                Heaviside(N, floor(N/4) + floor(N/8) - 1))
+                rmSecondarySet(:,iCase) = rH * (Heaviside(N, floor(N/2) + floor(N/4) - floor(N/8) - 1) - &
+                                                Heaviside(N, floor(N/2) + floor(N/4) + floor(N/8) - 1))
+                                                
+            case(3)
+            
+                ! Third case: dilated Gaussian
+                if(iVariant > 0) then
+                    rDs = (iVariant + 1) * 100.
+                else
+                    rDs = 1.
+                end if
+                
+            case(4)
+            
+                ! Fourth case: translated Gaussian
+                if(iVariant > 0) then
+                    rDs = (iVariant + 1) * 100.
+                else
+                    rDs = 0.
+                end if
             
             end select
             
@@ -118,6 +142,22 @@ contains
         end do
         
     end function Heaviside
+    
+    
+    function TinyGaussian(n) result(rvGauss)
+
+    
+        ! Routine arguments
+        integer, intent(in)             :: n
+        real, dimension(n)              :: rvGauss
+        
+        ! Locals
+        integer :: i
+        
+        ! Compute the information desired
+        rvGauss = exp(-50.*[((float(i)-floor(n/s))**2,i=1,n)]/n**2)
+        
+    end function TinyGaussian
         
 end program GenerateIndicators
 
