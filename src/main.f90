@@ -59,8 +59,8 @@ program GenerateIndicators
                 ! Second case: Heaviside doublets
                 rmPrimarySet(:,iCase)   = Heaviside(N, floor(N/4) - floor(N/8) - 1) - &
                                           Heaviside(N, floor(N/4) + floor(N/8) - 1)
-                rmSecondarySet(:,iCase) = Heaviside(N, FLOOR(N/2) + floor(N/4) - floor(N/8) - 1) - &
-                                          Heaviside(N, FLOOR(N/2) + floor(N/4) + floor(N/8) - 1)
+                rmSecondarySet(:,iCase) = Heaviside(N, floor(N/2) + floor(N/4) - floor(N/8) - 1) - &
+                                          Heaviside(N, floor(N/2) + floor(N/4) + floor(N/8) - 1)
             
             end select
             
@@ -77,6 +77,8 @@ program GenerateIndicators
         rFB = tCmp % FB()
         print *, "    Fractional Bias (FB) = ", rFB, "    Error = ", rFB - rValue
         
+    end do
+    
     end do
     
     print *, "Norm ---------------------------------------------------"
