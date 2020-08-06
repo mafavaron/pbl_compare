@@ -92,6 +92,30 @@ program GenerateIndicators
     close(10)
 
     print *, "==== ---------------------------------------------------"
+    
+    
+contains
+
+    function Heaviside(n, n_at_change) result(rvHeaviside)
+    
+        ! Routine arguments
+        integer, intent(in)             :: n
+        integer, intent(in)             :: n_at_change
+        real, dimension(n)              :: rvHeaviside
+        
+        ! Locals
+        integer :: i
+        
+        ! Generate the information desired
+        do i = 1, n
+            if(i < n_at_change) then
+                rvHeaviside(i) = 0.
+            else
+                rvHeaviside(i) = 1.
+            end if
+        end do
+        
+    end function Heaviside
         
 end program GenerateIndicators
 
