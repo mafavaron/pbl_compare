@@ -19,7 +19,6 @@ program GenerateIndicators
     integer                             :: iRetCode
     integer                             :: iVariant
     integer                             :: iCase
-    integer                             :: iShiftVal
     real                                :: rValue
     real, dimension(N_VARS)             :: rvVariantValue
     real, dimension(N, N_CASES)         :: rmPrimarySet
