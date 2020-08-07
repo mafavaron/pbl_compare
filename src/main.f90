@@ -26,17 +26,10 @@ program GenerateIndicators
     real, dimension(N, N_CASES)         :: rmSecondarySet
     real, dimension(N_VARS, N_CASES)    :: rmFB
     type(CompareType)                   :: tCmp
-    real                                :: rFB
     real                                :: rDs
     real                                :: rH
     integer                             :: i
     
-    print *, "   "
-    print *, "---   ---   ---"
-    print *, "   "
-    
-    print *, "Peak ---------------------------------------------------"
-        
     do iVariant = 0, N_VARS - 1
     
         do iCase = 1, N_CASES
@@ -116,6 +109,7 @@ program GenerateIndicators
     end do
     close(10)
 
+    print *, '*** End Job ***'
     
 contains
 
