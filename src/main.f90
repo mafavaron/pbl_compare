@@ -151,7 +151,7 @@ contains
         integer :: i
         
         ! Compute the information desired
-        rvGauss = exp(-50.*[((float(i)-floor(n/2))**2,i=1,n)]/n**2)
+        rvGauss = exp(-50.*[((i-n/2)**2,i=1,n)]/n**2)
         
     end function TinyGaussian
         
