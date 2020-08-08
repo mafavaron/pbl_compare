@@ -23,6 +23,7 @@ module pbl_compare
     contains
         procedure   :: Set
         procedure   :: FB       ! Fractional bias
+        procedure   :: NMSE     ! Normalized Mean Squared Error
     end type CompareType
     
 contains
