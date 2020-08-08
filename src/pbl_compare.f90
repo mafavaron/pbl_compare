@@ -102,4 +102,28 @@ contains
         
     end function FB
 
+    ! Fractional Bias (FB)
+    function NMSE(this) result(rNMSE)
+    
+        ! Routine arguments
+        class(CompareType), intent(inout)   :: this
+        real                                :: rNMSE
+        
+        ! Locals
+        real    :: rNumerator
+        real    :: rDenominator
+        
+        ! Check execution may start
+        if(.not.this % lGo) then
+            rNMSE = -9999.9
+            return
+        end if
+        
+        ! Compute the information desired
+        rNumerator   = sum((this % rvPrimary - this % rvSecondary)**2)
+        rDenominator = sum(this % rvPrimary) * sum(this % rvSecondary)
+        rNMSE        = rNumerator / rDenominator
+        
+    end function NMSE
+
 end module pbl_compare
