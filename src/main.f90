@@ -24,6 +24,7 @@ program GenerateIndicators
     real, dimension(N, N_CASES)         :: rmPrimarySet
     real, dimension(N, N_CASES)         :: rmSecondarySet
     real, dimension(N_VARS, N_CASES)    :: rmFB
+    real, dimension(N_VARS, N_CASES)    :: rmNMSE
     type(CompareType)                   :: tCmp
     real                                :: rDs
     real                                :: rH
@@ -94,7 +95,8 @@ program GenerateIndicators
                 print *, "error: Comparison data sets initialization failure - Ret code = ", iRetCode
                 stop
             end if
-            rmFB(iVariant+1, iCase) = tCmp % FB()
+            rmFB(iVariant+1, iCase)   = tCmp % FB()
+            rmNMSE(iVariant+1, iCase) = tCmp % NMSE()
         
         end do
     
@@ -102,9 +104,9 @@ program GenerateIndicators
     
     ! Print results for tte various cases
     open(10, file="Indices_1.csv", status="unknown", action="write")
-    write(10, "('Variant, Value, FB')")
+    write(10, "('Variant, Value, FB, NMSE')")
     do i=1,N_VARS
-        write(10, "(i1,',',f5.1,',',f8.5)") i-1, rvVariantValue(i), rmFB(i,1)
+        write(10, "(i1,',',f5.1,2(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,1), rmNMSE(i,1)
     end do
     close(10)
 
