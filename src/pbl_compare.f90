@@ -123,7 +123,7 @@ contains
         ! Compute the information desired
         rNumerator   = sum((this % rvPrimary - this % rvSecondary)**2)
         rDenominator = sum(this % rvPrimary) * sum(this % rvSecondary)
-        rNMSE        = rNumerator / rDenominator
+        rNMSE        = this % iNumData * rNumerator / rDenominator
         
     end function NMSE
 
