@@ -13,7 +13,7 @@ program GenerateIndicators
     ! Constants
     integer, parameter  :: N_VARS   =     7
     integer, parameter  :: N_CASES  =     4
-    integer, parameter  :: N        = 16384
+    integer, parameter  :: N        =    64
 
     ! Locals
     integer                             :: iRetCode
