@@ -43,7 +43,7 @@ program GenerateIndicators
                 rmSecondarySet(:,iCase) = rmPrimarySet(:,iCase)
                 if(iVariant > 0) then
                     rDs = (iVariant + 1) * 100.
-                    rmSecondarySet(8192,iCase)  = rDs
+                    rmSecondarySet(1, iCase)  = rDs
                 else
                     rDs = 1.
                 end if
