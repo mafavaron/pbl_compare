@@ -58,10 +58,10 @@ program GenerateIndicators
                     rH = 1.
                 end if
                 rvVariantValue(iVariant+1) = rH
-                rmPrimarySet(:,iCase)   = rH * (Heaviside(N, N/4 - N/8 - 1) - &
-                                                Heaviside(N, N/4 + N/8 - 1))
-                rmSecondarySet(:,iCase) = rH * (Heaviside(N, N/2 + N/4 - N/8 - 1) - &
-                                                Heaviside(N, N/2 + N/4 + N/8 - 1))
+                rmPrimarySet(:,iCase)   = rH * Case2(N, N/4 - N/8 - 1, N/4 + N/8 - 1)
+                rmSecondarySet(:,iCase) = rH * Case2(N, N/2 + N/4 - N/8 - 1, N/2 + N/4 + N/8 - 1)
+                
+                print *, Case2(N, N/4 - N/8 - 1, N/4 + N/8 - 1)
                                                 
             case(3)
             
@@ -122,26 +122,26 @@ program GenerateIndicators
     
 contains
 
-    function Heaviside(n, n_at_change) result(rvHeaviside)
+    function Case2(n, n_min, n_max) result(rvCase2)
     
         ! Routine arguments
         integer, intent(in)             :: n
-        integer, intent(in)             :: n_at_change
-        real, dimension(n)              :: rvHeaviside
+        integer, intent(in)             :: n_min
+        integer, intent(in)             :: n_max
+        real, dimension(n)              :: rvCase2
         
         ! Locals
         integer :: i
         
         ! Generate the information desired
+        rvCase2 = 0.
         do i = 1, n
-            if(i < n_at_change) then
-                rvHeaviside(i) = 0.
-            else
-                rvHeaviside(i) = 1.
+            if(i >= n_min .and. i <= n_max) then
+                rvCase2(i) = 1.
             end if
         end do
         
-    end function Heaviside
+    end function Case2
     
     
     function TinyGaussian(n) result(rvGauss)
