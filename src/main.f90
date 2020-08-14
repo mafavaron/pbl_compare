@@ -32,7 +32,8 @@ program GenerateIndicators
     
     do iVariant = 0, N_VARS - 1
     
-        do iCase = 1, N_CASES
+        !do iCase = 1, N_CASES
+        do iCase = 1, 1
     
             select case(iCase)
             
