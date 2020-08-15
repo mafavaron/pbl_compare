@@ -13,32 +13,27 @@ program GenerateIndicators
     ! Constants
     integer, parameter  :: N_VARS   =     7
     integer, parameter  :: N_CASES  =     4
-    integer, parameter  :: N        = 16384
+    integer, parameter  :: N        =    64
 
     ! Locals
     integer                             :: iRetCode
     integer                             :: iVariant
     integer                             :: iCase
-    integer                             :: iShiftVal
     real                                :: rValue
+    real, dimension(N_VARS)             :: rvVariantValue
     real, dimension(N, N_CASES)         :: rmPrimarySet
     real, dimension(N, N_CASES)         :: rmSecondarySet
     real, dimension(N_VARS, N_CASES)    :: rmFB
+    real, dimension(N_VARS, N_CASES)    :: rmNMSE
     type(CompareType)                   :: tCmp
-    real                                :: rFB
     real                                :: rDs
     real                                :: rH
     integer                             :: i
     
-    print *, "   "
-    print *, "---   ---   ---"
-    print *, "   "
-    
-    print *, "Peak ---------------------------------------------------"
-        
     do iVariant = 0, N_VARS - 1
     
-        do iCase = 1, N_CASES
+        !do iCase = 1, N_CASES
+        do iCase = 1, 2
     
             select case(iCase)
             
@@ -48,12 +43,12 @@ program GenerateIndicators
                 rmPrimarySet(:,iCase)   = 1.
                 rmSecondarySet(:,iCase) = rmPrimarySet(:,iCase)
                 if(iVariant > 0) then
-                    rValue = (iVariant + 1) * 100.
-                    rmSecondarySet(8192,iCase)  = rValue
-                    rDs                         = rValue
+                    rDs = (iVariant + 1) * 100.
+                    rmSecondarySet(1, iCase)  = rDs
                 else
                     rDs = 1.
                 end if
+                rvVariantValue(iVariant+1) = rDs
                 
             case(2)
             
@@ -63,11 +58,10 @@ program GenerateIndicators
                 else
                     rH = 1.
                 end if
-                rmPrimarySet(:,iCase)   = rH * (Heaviside(N, floor(N/4) - floor(N/8) - 1) - &
-                                                Heaviside(N, floor(N/4) + floor(N/8) - 1))
-                rmSecondarySet(:,iCase) = rH * (Heaviside(N, floor(N/2) + floor(N/4) - floor(N/8) - 1) - &
-                                                Heaviside(N, floor(N/2) + floor(N/4) + floor(N/8) - 1))
-                                                
+                rvVariantValue(iVariant+1) = rH
+                rmPrimarySet(:,iCase)   = rH * Case2(N, N/4 - N/8 - 1, N/4 + N/8 - 1)
+                rmSecondarySet(:,iCase) = rH * Case2(N, N/2 + N/4 - N/8 - 1, N/2 + N/4 + N/8 - 1)
+                
             case(3)
             
                 ! Third case: dilated Gaussian
@@ -76,6 +70,9 @@ program GenerateIndicators
                 else
                     rDs = 1.
                 end if
+                rvVariantValue(iVariant+1) = rDs
+                rmPrimarySet(:,iCase)   = TinyGaussian(N)
+                rmSecondarySet(:,iCase) = rDs * rmPrimarySet(:,iCase)
                 
             case(4)
             
@@ -85,68 +82,69 @@ program GenerateIndicators
                 else
                     rDs = 0.
                 end if
+                rvVariantValue(iVariant+1) = rDs
+                rmPrimarySet(:,iCase)   = TinyGaussian(N)
+                rmSecondarySet(:,iCase) = rmPrimarySet(:,iCase) + rDs
             
             end select
-            
         
-        iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
-        if(iRetCode /= 0) then
-            print *, "error: Comparison data sets initialization failure - Ret code = ", iRetCode
-            stop
-        end if
+            ! Initialize new value, then compute indices based on it
+            iRetCode = tCmp % Set(rmPrimarySet(:,iCase), rmSecondarySet(:,iCase))
+            if(iRetCode /= 0) then
+                print *, "error: Comparison data sets initialization failure - Ret code = ", iRetCode
+                stop
+            end if
+            rmFB(iVariant+1, iCase)   = tCmp % FB()
+            rmNMSE(iVariant+1, iCase) = tCmp % NMSE()
         
-        ! Compute value expected analytically, for comparison
-        rValue = 2. * (1. - rDs) / (rDs + 2*n - 1.)
-        
-        rFB = tCmp % FB()
-        print *, "    Fractional Bias (FB) = ", rFB, "    Error = ", rFB - rValue
-        
-    end do
+        end do
     
     end do
     
-    print *, "Norm ---------------------------------------------------"
-    
-    open(10, file="FB.csv", status="unknown", action="write")
-    rvPrimarySet = [(exp(-(i-n/2)**2/2.e4),i=1,n)]
-    do iShiftVal = -6000, 6000, 100
-        rvSecondarySet = [(exp(-(i-n/2+iShiftVal)**2/2.e4),i=1,n)]
-        iRetCode = tCmp % Set(rvPrimarySet, rvSecondarySet)
-        rFB = tCmp % FB()
-        print *, "    Fractional Bias (FB) = ", rFB, "  Shift = ", iShiftVal
+    ! Print results for the various cases
+    ! -1- Case 1
+    open(10, file="Indices_1.csv", status="unknown", action="write")
+    write(10, "('Variant, Value, FB, NMSE')")
+    do i=1,N_VARS
+        write(10, "(i1,',',f5.1,2(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,1), rmNMSE(i,1)
+    end do
+    close(10)
+    ! -1- Case 2
+    open(10, file="Indices_2.csv", status="unknown", action="write")
+    write(10, "('Variant, Value, FB, NMSE')")
+    do i=1,N_VARS
+        write(10, "(i1,',',f5.1,2(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,2), rmNMSE(i,2)
     end do
     close(10)
 
-    print *, "==== ---------------------------------------------------"
-    
+    print *, '*** End Job ***'
     
 contains
 
-    function Heaviside(n, n_at_change) result(rvHeaviside)
+    function Case2(n, n_min, n_max) result(rvCase2)
     
         ! Routine arguments
         integer, intent(in)             :: n
-        integer, intent(in)             :: n_at_change
-        real, dimension(n)              :: rvHeaviside
+        integer, intent(in)             :: n_min
+        integer, intent(in)             :: n_max
+        real, dimension(n)              :: rvCase2
         
         ! Locals
         integer :: i
         
         ! Generate the information desired
+        rvCase2 = 0.
         do i = 1, n
-            if(i < n_at_change) then
-                rvHeaviside(i) = 0.
-            else
-                rvHeaviside(i) = 1.
+            if(i >= n_min .and. i <= n_max) then
+                rvCase2(i) = 1.
             end if
         end do
         
-    end function Heaviside
+    end function Case2
     
     
     function TinyGaussian(n) result(rvGauss)
 
-    
         ! Routine arguments
         integer, intent(in)             :: n
         real, dimension(n)              :: rvGauss
@@ -155,7 +153,7 @@ contains
         integer :: i
         
         ! Compute the information desired
-        rvGauss = exp(-50.*[((float(i)-floor(n/s))**2,i=1,n)]/n**2)
+        rvGauss = exp(-50.*[((i-n/2)**2,i=1,n)]/n**2)
         
     end function TinyGaussian
         
