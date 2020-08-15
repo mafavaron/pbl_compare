@@ -33,7 +33,7 @@ program GenerateIndicators
     do iVariant = 0, N_VARS - 1
     
         !do iCase = 1, N_CASES
-        do iCase = 1, 1
+        do iCase = 1, 2
     
             select case(iCase)
             
@@ -62,8 +62,6 @@ program GenerateIndicators
                 rmPrimarySet(:,iCase)   = rH * Case2(N, N/4 - N/8 - 1, N/4 + N/8 - 1)
                 rmSecondarySet(:,iCase) = rH * Case2(N, N/2 + N/4 - N/8 - 1, N/2 + N/4 + N/8 - 1)
                 
-                print *, Case2(N, N/4 - N/8 - 1, N/4 + N/8 - 1)
-                                                
             case(3)
             
                 ! Third case: dilated Gaussian
