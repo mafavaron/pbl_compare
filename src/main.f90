@@ -25,6 +25,7 @@ program GenerateIndicators
     real, dimension(N, N_CASES)         :: rmSecondarySet
     real, dimension(N_VARS, N_CASES)    :: rmFB
     real, dimension(N_VARS, N_CASES)    :: rmNMSE
+    real, dimension(N_VARS, N_CASES)    :: rmMG
     type(CompareType)                   :: tCmp
     real                                :: rDs
     real                                :: rH
@@ -96,6 +97,7 @@ program GenerateIndicators
             end if
             rmFB(iVariant+1, iCase)   = tCmp % FB()
             rmNMSE(iVariant+1, iCase) = tCmp % NMSE()
+            rmMG(iVariant+1, iCase)   = tCmp % MG()
         
         end do
     
@@ -106,14 +108,14 @@ program GenerateIndicators
     open(10, file="Indices_1.csv", status="unknown", action="write")
     write(10, "('Variant, Value, FB, NMSE')")
     do i=1,N_VARS
-        write(10, "(i1,',',f5.1,2(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,1), rmNMSE(i,1)
+        write(10, "(i1,',',f5.1,3(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,1), rmNMSE(i,1), rmMG(i,1)
     end do
     close(10)
     ! -1- Case 2
     open(10, file="Indices_2.csv", status="unknown", action="write")
     write(10, "('Variant, Value, FB, NMSE')")
     do i=1,N_VARS
-        write(10, "(i1,',',f5.1,2(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,2), rmNMSE(i,2)
+        write(10, "(i1,',',f5.1,3(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,2), rmNMSE(i,2), rmMG(i,2)
     end do
     close(10)
 
