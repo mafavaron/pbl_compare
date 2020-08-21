@@ -108,14 +108,14 @@ program GenerateIndicators
     open(10, file="Indices_1.csv", status="unknown", action="write")
     write(10, "('Variant, Value, FB, NMSE, MG')")
     do i=1,N_VARS
-        write(10, "(i1,',',f5.1,3(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,1), rmNMSE(i,1), rmMG(i,1)
+        write(10, "(i1,',',f5.1,3(',',f11.5))") i-1, rvVariantValue(i), rmFB(i,1), rmNMSE(i,1), rmMG(i,1)
     end do
     close(10)
     ! -1- Case 2
     open(10, file="Indices_2.csv", status="unknown", action="write")
     write(10, "('Variant, Value, FB, NMSE, MG')")
     do i=1,N_VARS
-        write(10, "(i1,',',f5.1,3(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,2), rmNMSE(i,2), rmMG(i,2)
+        write(10, "(i1,',',f5.1,3(',',f11.5))") i-1, rvVariantValue(i), rmFB(i,2), rmNMSE(i,2), rmMG(i,2)
     end do
     close(10)
 
