@@ -25,6 +25,7 @@ module pbl_compare
         procedure   :: FB       ! Fractional bias
         procedure   :: NMSE     ! Normalized Mean Squared Error
         procedure   :: MG       ! Geometric mean
+        procedure   :: VG       ! Geometric variance
     end type CompareType
     
 contains
@@ -104,7 +105,7 @@ contains
         
     end function FB
 
-    ! Fractional Bias (FB)
+    ! Normalized Mean Squared Error (NMSE)
     function NMSE(this) result(rNMSE)
     
         ! Routine arguments
@@ -128,7 +129,7 @@ contains
         
     end function NMSE
 
-    ! Fractional Bias (FB)
+    ! Geometric Mean (GM)
     function MG(this) result(rMG)
     
         ! Routine arguments
@@ -162,5 +163,33 @@ contains
         end if
         
     end function MG
+
+    ! Geometric Variance (VG)
+    function VG(this) result(rVG)
+    
+        ! Routine arguments
+        class(CompareType), intent(inout)   :: this
+        real                                :: rVG
+        
+        ! Locals
+        real    :: rPos
+        integer :: i
+        
+        ! Check execution may start
+        if(.not.this % lGo) then
+            rVG = -9999.9
+            return
+        end if
+        
+        ! Compute the information desired
+        rPos = 0.
+        do i = 1, this % iNumData
+            if(this % rvPrimary(i) > 0. .and. this % rvSecondary(i) > 0.) then
+                rPos = rPos + (log(this % rvPrimary(i)) - log(this % rvSecondary(i)))**2
+            end if
+        end do
+        rVG = exp(rPos)
+        
+    end function VG
 
 end module pbl_compare
