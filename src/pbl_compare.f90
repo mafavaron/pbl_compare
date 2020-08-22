@@ -174,6 +174,7 @@ contains
         ! Locals
         real    :: rPos
         integer :: i
+        integer :: iPositive
         
         ! Check execution may start
         if(.not.this % lGo) then
@@ -183,12 +184,14 @@ contains
         
         ! Compute the information desired
         rPos = 0.
+        iPositive = 0
         do i = 1, this % iNumData
             if(this % rvPrimary(i) > 0. .and. this % rvSecondary(i) > 0.) then
                 rPos = rPos + (log(this % rvPrimary(i)) - log(this % rvSecondary(i)))**2
+                iPositive = iPositive + 1
             end if
         end do
-        rVG = exp(rPos)
+        rVG = exp(rPos / iPositive)
         
     end function VG
 
