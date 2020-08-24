@@ -26,6 +26,7 @@ module pbl_compare
         procedure   :: NMSE     ! Normalized Mean Squared Error
         procedure   :: MG       ! Geometric mean
         procedure   :: VG       ! Geometric variance
+        procedure   :: FAC2     ! Fracion within a factor of 2
     end type CompareType
     
 contains
@@ -194,5 +195,35 @@ contains
         rVG = exp(rPos / iPositive)
         
     end function VG
+
+    ! Fraction within a factor of 2 (FAC2)
+    function FAC2(this) result(rFAC2)
+    
+        ! Routine arguments
+        class(CompareType), intent(inout)   :: this
+        real                                :: rFAC2
+        
+        ! Locals
+        integer :: i
+        integer :: iWithin
+        real    :: rLower
+        real    :: rUpper
+        
+        ! Check execution may start
+        if(.not.this % lGo) then
+            rFAC2 = -9999.9
+            return
+        end if
+        
+        ! Compute the information desired
+        iWithin = 0
+        do i = 1, this % iNumData
+            if(0.5 * this % rvSecondary(i) <= this % rvPrimary(i) .and. this % rvPrimary(i) <= 2. * this % rvSecondary(i)) then
+                iWithin = iWithin + 1
+            end if
+        end do
+        rFAC2 = float(iWithin) / this % iNumData
+        
+    end function FAC2
 
 end module pbl_compare
