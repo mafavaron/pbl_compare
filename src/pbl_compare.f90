@@ -27,6 +27,7 @@ module pbl_compare
         procedure   :: MG       ! Geometric mean
         procedure   :: VG       ! Geometric variance
         procedure   :: FAC2     ! Fracion within a factor of 2
+        procedure   :: NAD      ! Normalizes absolute difference
     end type CompareType
     
 contains
@@ -106,6 +107,7 @@ contains
         
     end function FB
 
+
     ! Normalized Mean Squared Error (NMSE)
     function NMSE(this) result(rNMSE)
     
@@ -129,6 +131,7 @@ contains
         rNMSE        = this % iNumData * rNumerator / rDenominator
         
     end function NMSE
+
 
     ! Geometric Mean (GM)
     function MG(this) result(rMG)
@@ -165,6 +168,7 @@ contains
         
     end function MG
 
+
     ! Geometric Variance (VG)
     function VG(this) result(rVG)
     
@@ -196,6 +200,7 @@ contains
         
     end function VG
 
+
     ! Fraction within a factor of 2 (FAC2)
     function FAC2(this) result(rFAC2)
     
@@ -225,5 +230,30 @@ contains
         rFAC2 = float(iWithin) / this % iNumData
         
     end function FAC2
+
+        
+    ! Normalized Absolute Difference (NAD)
+    function NAD(this) result(rNAD)
+    
+        ! Routine arguments
+        class(CompareType), intent(inout)   :: this
+        real                                :: rNAD
+        
+        ! Locals
+        real    :: rNumerator
+        real    :: rDenominator
+        
+        ! Check execution may start
+        if(.not.this % lGo) then
+            rNAD = -9999.9
+            return
+        end if
+        
+        ! Compute the information desired
+        rNumerator   = sum(abs(this % rvPrimary - this % rvSecondary))
+        rDenominator = sum(this % rvPrimary) + sum(this % rvSecondary)
+        rNAD          = rNumerator / rDenominator
+        
+    end function NAD
 
 end module pbl_compare
