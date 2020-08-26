@@ -25,6 +25,10 @@ program GenerateIndicators
     real, dimension(N, N_CASES)         :: rmSecondarySet
     real, dimension(N_VARS, N_CASES)    :: rmFB
     real, dimension(N_VARS, N_CASES)    :: rmNMSE
+    real, dimension(N_VARS, N_CASES)    :: rmMG
+    real, dimension(N_VARS, N_CASES)    :: rmVG
+    real, dimension(N_VARS, N_CASES)    :: rmFAC2
+    real, dimension(N_VARS, N_CASES)    :: rmNAD
     type(CompareType)                   :: tCmp
     real                                :: rDs
     real                                :: rH
@@ -33,7 +37,7 @@ program GenerateIndicators
     do iVariant = 0, N_VARS - 1
     
         !do iCase = 1, N_CASES
-        do iCase = 1, 3
+        do iCase = 1, 4
     
             select case(iCase)
             
@@ -96,6 +100,10 @@ program GenerateIndicators
             end if
             rmFB(iVariant+1, iCase)   = tCmp % FB()
             rmNMSE(iVariant+1, iCase) = tCmp % NMSE()
+            rmMG(iVariant+1, iCase)   = tCmp % MG()
+            rmVG(iVariant+1, iCase)   = tCmp % VG()
+            rmFAC2(iVariant+1, iCase) = tCmp % FAC2()
+            rmNAD(iVariant+1, iCase)  = tCmp % NAD()
         
         end do
     
@@ -104,16 +112,34 @@ program GenerateIndicators
     ! Print results for the various cases
     ! -1- Case 1
     open(10, file="Indices_1.csv", status="unknown", action="write")
-    write(10, "('Variant, Value, FB, NMSE')")
+    write(10, "('Variant, Value, FB, NMSE, MG, VG, FAC2, NAD')")
     do i=1,N_VARS
-        write(10, "(i1,',',f5.1,2(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,1), rmNMSE(i,1)
+        write(10, "(i1,',',f5.1,6(',',f11.5))") &
+            i-1, rvVariantValue(i), rmFB(i,1), rmNMSE(i,1), rmMG(i,1), rmVG(i,1), rmFAC2(i,1), rmNAD(i,1)
     end do
     close(10)
     ! -1- Case 2
     open(10, file="Indices_2.csv", status="unknown", action="write")
-    write(10, "('Variant, Value, FB, NMSE')")
+    write(10, "('Variant, Value, FB, NMSE, MG, VG, FAC2, NAD')")
     do i=1,N_VARS
-        write(10, "(i1,',',f5.1,2(',',f8.5))") i-1, rvVariantValue(i), rmFB(i,2), rmNMSE(i,2)
+        write(10, "(i1,',',f5.1,6(',',f11.5))") &
+            i-1, rvVariantValue(i), rmFB(i,2), rmNMSE(i,2), rmMG(i,2), rmVG(i,2), rmFAC2(i,2), rmNAD(i,2)
+    end do
+    close(10)
+    ! -1- Case 3
+    open(10, file="Indices_3.csv", status="unknown", action="write")
+    write(10, "('Variant, Value, FB, NMSE, MG, VG, FAC2, NAD')")
+    do i=1,N_VARS
+        write(10, "(i1,',',f5.1,6(',',f11.5))") &
+            i-1, rvVariantValue(i), rmFB(i,3), rmNMSE(i,3), rmMG(i,3), rmVG(i,3), rmFAC2(i,3), rmNAD(i,3)
+    end do
+    close(10)
+    ! -1- Case 4
+    open(10, file="Indices_4.csv", status="unknown", action="write")
+    write(10, "('Variant, Value, FB, NMSE, MG, VG, FAC2, NAD')")
+    do i=1,N_VARS
+        write(10, "(i1,',',f5.1,6(',',f11.5))") &
+            i-1, rvVariantValue(i), rmFB(i,4), rmNMSE(i,4), rmMG(i,4), rmVG(i,4), rmFAC2(i,4), rmNAD(i,4)
     end do
     close(10)
 
